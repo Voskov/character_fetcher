@@ -4,11 +4,11 @@ import aiohttp
 
 from character_fetcher.base_character_fetcher import BaseCharacterFetcher
 
-BASEURL = 'https://swapi.dev/api/people/'
+BASEURL = 'https://' # REPLACE
 
 class TemplateCharacterFetcher(BaseCharacterFetcher):
     def __init__(self):
-        super().__init__(BASEURL, "Template")
+        super().__init__(BASEURL, "Template") # REPLACE
 
     async def fetch_page(self, session, page):
         url = f"{self.base_url}?page={page}"
