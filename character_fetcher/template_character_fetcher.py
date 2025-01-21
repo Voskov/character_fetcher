@@ -36,6 +36,8 @@ class TemplateCharacterFetcher(BaseCharacterFetcher):
         return {
             'name': raw_character.get('name'),
             'origin': self.origin,
+            'species': raw_character.get('species'), # REPLACE
+            'additional_attribute': raw_character.get('something') # REPLACE
         }
 
 if __name__ == '__main__':

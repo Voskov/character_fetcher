@@ -37,9 +37,8 @@ class RickAndMortyCharacterFetcher(BaseCharacterFetcher):
         return {
             'name': raw_character.get('name'),
             'origin': self.origin,
-            'homeworld': raw_character.get('origin').get('name'),
             'species': raw_character.get('species'),
-            'status': raw_character.get('status'),
+            'additional_attribute': raw_character.get('status'),
         }
 
 if __name__ == '__main__':
