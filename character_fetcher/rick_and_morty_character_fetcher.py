@@ -8,7 +8,7 @@ BASEURL = 'https://rickandmortyapi.com/api/character/'
 
 class RickAndMortyCharacterFetcher(BaseCharacterFetcher):
     def __init__(self):
-        super().__init__(BASEURL)
+        super().__init__(BASEURL, origin="Rick and Morty")
 
     async def fetch_page(self, session, page):
         url = f"{self.base_url}?page={page}"
@@ -36,7 +36,8 @@ class RickAndMortyCharacterFetcher(BaseCharacterFetcher):
     def normalize_character(self, raw_character):
         return {
             'name': raw_character.get('name'),
-            'origin': raw_character.get('origin').get('name'),
+            'origin': self.origin,
+            'homeworld': raw_character.get('origin').get('name'),
             'species': raw_character.get('species'),
             'status': raw_character.get('status'),
         }

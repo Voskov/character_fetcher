@@ -8,7 +8,7 @@ BASEURL = 'https://swapi.dev/api/people/'
 
 class TemplateCharacterFetcher(BaseCharacterFetcher):
     def __init__(self):
-        super().__init__(BASEURL)
+        super().__init__(BASEURL, "Template")
 
     async def fetch_page(self, session, page):
         url = f"{self.base_url}?page={page}"
@@ -35,6 +35,7 @@ class TemplateCharacterFetcher(BaseCharacterFetcher):
     def normalize_character(self, raw_character):
         return {
             'name': raw_character.get('name'),
+            'origin': self.origin,
         }
 
 if __name__ == '__main__':

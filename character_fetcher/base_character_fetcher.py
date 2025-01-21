@@ -4,8 +4,9 @@ import aiohttp
 
 
 class BaseCharacterFetcher(ABC):
-    def __init__(self, base_url: str) -> None:
+    def __init__(self, base_url: str, origin: str) -> None:
         self.base_url = base_url
+        self.origin = origin
 
     @abstractmethod
     async def fetch_all_characters(self):
