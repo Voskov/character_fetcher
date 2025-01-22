@@ -1,14 +1,16 @@
 import asyncio
 
 import aiohttp
+from icecream import ic
 
+from character.rick_and_morty_character import RickAndMortyCharacter
 from character_fetcher.base_character_fetcher import BaseCharacterFetcher
+from multiverse.universe_config import UniverseConfigs
 
-BASEURL = 'https://rickandmortyapi.com/api/character/'
 
 class RickAndMortyCharacterFetcher(BaseCharacterFetcher):
     def __init__(self):
-        super().__init__(BASEURL, origin="Rick and Morty")
+        super().__init__(UniverseConfigs.RICK_AND_MORTY)
 
     async def fetch_page(self, session, page):
         url = f"{self.base_url}?page={page}"
@@ -34,14 +36,10 @@ class RickAndMortyCharacterFetcher(BaseCharacterFetcher):
         return [character async for character in self.fetch_characters_stream()]
 
     def normalize_character(self, raw_character):
-        return {
-            'name': raw_character.get('name'),
-            'origin': self.origin,
-            'species': raw_character.get('species'),
-            'additional_attribute': raw_character.get('status'),
-        }
+        rick_and_morty_character = RickAndMortyCharacter.from_raw_character(raw_character)
+        return rick_and_morty_character.to_dict()
 
 if __name__ == '__main__':
     fetcher = RickAndMortyCharacterFetcher()
     characters = asyncio.run(fetcher.fetch_all_characters())
-    print(characters)
+    ic(characters)

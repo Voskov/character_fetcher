@@ -3,21 +3,22 @@ import asyncio
 import aiohttp
 import requests
 
+from character.pokemon_character import PokemonCharacter
 from character_fetcher.base_character_fetcher import BaseCharacterFetcher
+from multiverse.universe_config import UniverseConfigs
 
-BASEURL = 'https://pokeapi.co/api/v2'
 
 class PokemonCharacterFetcher(BaseCharacterFetcher):
     def __init__(self):
-        super().__init__(BASEURL, "Pokémon")
+        super().__init__(UniverseConfigs.POKEMON)
         self.page_size = 100
 
     def get_number_of_characters(self):
-        response = requests.get(f"{self.base_url}/pokemon?limit=1&offset=0")
+        response = requests.get(f"{self.base_url}?limit=1&offset=0")
         return response.json().get('count')
 
     async def fetch_page(self, session: aiohttp.ClientSession, offset: int):
-        url = f"{self.base_url}/pokemon?limit={self.page_size}&offset={offset}"
+        url = f"{self.base_url}?limit={self.page_size}&offset={offset}"
         return await self._make_request(session, url)
 
     async def fetch_pokemon_urls(self):
@@ -48,13 +49,8 @@ class PokemonCharacterFetcher(BaseCharacterFetcher):
                 yield self.normalize_character(raw_character)
 
     def normalize_character(self, raw_character):
-        types = '/'.join([t['type']['name'].title() for t in raw_character.get('types')])
-        return {
-            'name': raw_character.get('name').title(),
-            'origin': self.origin,
-            'species': types,
-            'additional_attribute': raw_character.get('base_experience')
-        }
+        pokemon = PokemonCharacter.from_raw_character(raw_character)
+        return pokemon.to_dict()
 
     async def fetch_all_characters(self):
         return [character async for character in self.fetch_characters_stream()]

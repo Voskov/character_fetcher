@@ -128,8 +128,8 @@ class CharacterSaver:
                 case SaverType.SHELVE:
                     characters = {}
                     with shelve.open(filename) as shelf:
-                        for key in shelf.keys():
-                            characters[key] = shelf[key]
+                        for name, data in shelf.items():
+                            characters[name] = data
                     return characters
 
                 case SaverType.TINYDB:

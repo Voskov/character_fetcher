@@ -1,16 +1,17 @@
 import asyncio
 from collections import defaultdict
-from functools import lru_cache
 import aiohttp
 import requests
+from icecream import ic
 
+from character.star_wars_character import StarWarsCharacter
 from character_fetcher.base_character_fetcher import BaseCharacterFetcher
+from multiverse.universe_config import UniverseConfigs
 
-BASEURL = 'https://swapi.dev/api/people/'
 
 class StarWarsCharacterFetcher(BaseCharacterFetcher):
     def __init__(self):
-        super().__init__(BASEURL, origin="Star Wars")
+        super().__init__(UniverseConfigs.STAR_WARS)
         self.results_per_page = 10
         self.species_cache = defaultdict(str)
 
@@ -53,14 +54,11 @@ class StarWarsCharacterFetcher(BaseCharacterFetcher):
                 species = self.fetch_extra_info(species_url)
                 self.species_cache[species_url] = species
 
-        return {
-            'name': raw_character.get('name'),
-            'origin': self.origin,
-            'species': species,
-            'additional_attribute': raw_character.get('birth_year')
-        }
+        raw_character['species'] = species
+        star_wars_character = StarWarsCharacter.from_raw_character(raw_character)
+        return star_wars_character.to_dict()
 
 if __name__ == '__main__':
     fetcher = StarWarsCharacterFetcher()
     characters = asyncio.run(fetcher.fetch_all_characters())
-    print(characters)
+    ic(characters)

@@ -1,12 +1,13 @@
 import asyncio
 from typing import List
+
+from icecream import ic
 from loguru import logger
 from character_fetcher.base_character_fetcher import BaseCharacterFetcher
 from character_fetcher.character_saver import SaverType, CharacterSaver
 from character_fetcher.pokemon_character_fetcher import PokemonCharacterFetcher
 from character_fetcher.rick_and_morty_character_fetcher import RickAndMortyCharacterFetcher
 from character_fetcher.star_wars_character_fetcher import StarWarsCharacterFetcher
-
 
 class CharacterSynchronizer:
     def __init__(self, character_fetchers: List[BaseCharacterFetcher] = None):
@@ -33,12 +34,13 @@ class CharacterSynchronizer:
                 logger.error(f"Error processing task: {e}")
         logger.info("Character synchronization completed")
 
-    async def _process_universe(self, fetcher):
-        logger.info(f"Fetching characters from {fetcher.__class__.__name__}")
+    @staticmethod
+    async def _process_universe(fetcher):
+        logger.info(f"Fetching characters from {fetcher.config.name}")
         try:
             return await fetcher.fetch_all_characters()
         except Exception as e:
-            logger.error(f"Error fetching characters from {fetcher.__class__.__name__}: {e}")
+            logger.error(f"Error fetching characters from {fetcher.config.name}: {e}")
             return None
 
 
@@ -66,4 +68,4 @@ async def main():
 
 if __name__ == "__main__":
     characters = asyncio.run(main())
-    print(f"Total characters: {len(characters)}")
+    ic(f"Total characters: {len(characters)}")

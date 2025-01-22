@@ -1,12 +1,16 @@
 from abc import ABC, abstractmethod
-from loguru import logger
 import aiohttp
+import asyncio
+from loguru import logger
+
+from multiverse.universe_config import UniverseConfig
 
 
 class BaseCharacterFetcher(ABC):
-    def __init__(self, base_url: str, origin: str) -> None:
-        self.base_url = base_url
-        self.origin = origin
+    def __init__(self, config: UniverseConfig) -> None:
+        self.config = config
+        self.base_url = config.base_url
+        self.origin = config.name
 
     @abstractmethod
     async def fetch_all_characters(self):
@@ -14,7 +18,7 @@ class BaseCharacterFetcher(ABC):
 
     @abstractmethod
     async def normalize_character(self, raw_character):
-        pass
+        return self.config.character_mapper(raw_character)
 
     async def _make_request(self, session: aiohttp.ClientSession, url: str):
         try:
@@ -22,6 +26,9 @@ class BaseCharacterFetcher(ABC):
                 response.raise_for_status()
                 return await response.json()
         except aiohttp.ClientError as e:
-            logger.error(f"Error fetching data from {url}: {e}")
-            return None
-
+            logger.error(f"Client error fetching data from {url}: {e}")
+        except asyncio.TimeoutError:
+            logger.error(f"Timeout while fetching data from {url}")
+        except Exception as e:
+            logger.error(f"Unexpected error fetching data from {url}: {e}")
+        return None
