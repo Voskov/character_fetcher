@@ -1,8 +1,8 @@
 import asyncio
-import json
 from typing import List
 from loguru import logger
 from character_fetcher.base_character_fetcher import BaseCharacterFetcher
+from character_fetcher.character_saver import SaverType, CharacterSaver
 from character_fetcher.pokemon_character_fetcher import PokemonCharacterFetcher
 from character_fetcher.rick_and_morty_character_fetcher import RickAndMortyCharacterFetcher
 from character_fetcher.star_wars_character_fetcher import StarWarsCharacterFetcher
@@ -17,6 +17,7 @@ class CharacterSynchronizer:
         ]
 
     async def sync_characters_stream(self):
+        logger.info("Starting character synchronization")
         fetch_tasks = [
             asyncio.create_task(self._process_universe(fetcher))
             for fetcher in self.fetchers
@@ -30,34 +31,40 @@ class CharacterSynchronizer:
                         yield character
             except Exception as e:
                 logger.error(f"Error processing task: {e}")
+        logger.info("Character synchronization completed")
 
     async def _process_universe(self, fetcher):
+        logger.info(f"Fetching characters from {fetcher.__class__.__name__}")
         try:
             return await fetcher.fetch_all_characters()
         except Exception as e:
             logger.error(f"Error fetching characters from {fetcher.__class__.__name__}: {e}")
             return None
 
+
     async def synchronize(self):
+        logger.info("Synchronizing characters")
         all_characters = []
         async for character in self.sync_characters_stream():
             if character:
                 all_characters.append(character)
+        logger.info(f"Total characters fetched: {len(all_characters)}")
         return sorted(all_characters, key=lambda c: c['name'])
 
-    def save_to_file(self, characters: List[dict], filename: str = "characters.json"):
-        try:
-            with open(filename, 'w', encoding='utf-8') as f:
-                json.dump(characters, f, indent=2, ensure_ascii=False)
-            logger.info(f"Successfully saved {len(characters)} characters to {filename}")
-        except IOError as e:
-            logger.error(f"Error saving to file: {e}")
+    @staticmethod
+    def save_characters(characters_list: List[dict], db_type: SaverType = SaverType.JSON):
+        logger.info(f"Saving characters to {db_type.name}")
+        CharacterSaver(db_type).save_characters(characters_list)
+        CharacterSaver(SaverType.SHELVE).save_characters(characters_list)
+        CharacterSaver(SaverType.SQLITE).save_characters(characters_list)
+        CharacterSaver(SaverType.TINYDB).save_characters(characters_list)
+        logger.info("Characters saved successfully")
 
 
 async def main():
     synchronizer = CharacterSynchronizer()
     all_characters = await synchronizer.synchronize()
-    synchronizer.save_to_file(all_characters)
+    synchronizer.save_characters(all_characters)
     return all_characters
 
 if __name__ == "__main__":
