@@ -13,15 +13,15 @@ class PokemonCharacterFetcher(BaseCharacterFetcher):
         super().__init__(UniverseConfigs.POKEMON)
         self.page_size = 100
 
-    def get_number_of_characters(self):
+    def get_number_of_characters(self) -> int:
         response = requests.get(f"{self.base_url}?limit=1&offset=0")
         return response.json().get('count')
 
-    async def fetch_page(self, session: aiohttp.ClientSession, offset: int):
+    async def fetch_page(self, session: aiohttp.ClientSession, offset: int) -> dict:
         url = f"{self.base_url}?limit={self.page_size}&offset={offset}"
         return await self._make_request(session, url)
 
-    async def fetch_pokemon_urls(self):
+    async def fetch_pokemon_urls(self) -> list:
         number_of_characters = self.get_number_of_characters()
         session = aiohttp.ClientSession()
         tasks = [self.fetch_page(session, offset) for offset in range(0, number_of_characters, self.page_size)]
@@ -34,7 +34,7 @@ class PokemonCharacterFetcher(BaseCharacterFetcher):
                 pokemons.extend(page_data.get('results'))
         return [p['url'] for p in pokemons]
 
-    async def fetch_pokemon_details(self, session, url):
+    async def fetch_pokemon_details(self, session, url) -> dict:
         return await self._make_request(session, url)
 
     async def fetch_characters_stream(self):
@@ -48,11 +48,11 @@ class PokemonCharacterFetcher(BaseCharacterFetcher):
                     continue
                 yield self.normalize_character(raw_character)
 
-    def normalize_character(self, raw_character):
+    def normalize_character(self, raw_character) -> dict:
         pokemon = PokemonCharacter.from_raw_character(raw_character)
         return pokemon.to_dict()
 
-    async def fetch_all_characters(self):
+    async def fetch_all_characters(self) -> list:
         return [character async for character in self.fetch_characters_stream()]
 
 if __name__ == '__main__':

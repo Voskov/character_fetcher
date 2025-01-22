@@ -15,7 +15,7 @@ class StarWarsCharacterFetcher(BaseCharacterFetcher):
         self.results_per_page = 10
         self.species_cache = defaultdict(str)
 
-    async def fetch_page(self, session, page):
+    async def fetch_page(self, session, page) -> dict:
         url = f"{self.base_url}?page={page}"
         return await self._make_request(session, url)
 
@@ -36,13 +36,13 @@ class StarWarsCharacterFetcher(BaseCharacterFetcher):
                     for raw_character in page_data.get('results'):
                         yield self.normalize_character(raw_character)
 
-    async def fetch_all_characters(self):
+    async def fetch_all_characters(self) -> list:
         return [character async for character in self.fetch_characters_stream()]
 
-    def fetch_extra_info(self, url):
+    def fetch_extra_info(self, url) -> str:
         return requests.get(url).json().get('name')
 
-    def normalize_character(self, raw_character):
+    def normalize_character(self, raw_character) -> dict:
         species = 'Human'
         species_url = raw_character.get('species')
 

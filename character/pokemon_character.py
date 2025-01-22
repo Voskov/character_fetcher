@@ -6,7 +6,7 @@ from multiverse.universe_config import UniverseConfigs
 
 @dataclass
 class PokemonCharacter(BaseCharacter):
-    def __init__(self, name: str, origin: str, species: str, base_experience: str) -> 'PokemonCharacter':
+    def __init__(self, name: str, origin: str, species: str, base_experience: str):
         super().__init__(name, origin, species, additional_attribute = base_experience)
 
     @classmethod

@@ -9,10 +9,10 @@ from multiverse.universe_config import UniverseConfigs
 
 
 class RickAndMortyCharacterFetcher(BaseCharacterFetcher):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(UniverseConfigs.RICK_AND_MORTY)
 
-    async def fetch_page(self, session, page):
+    async def fetch_page(self, session, page) -> dict:
         url = f"{self.base_url}?page={page}"
         return await self._make_request(session, url)
 
@@ -32,10 +32,10 @@ class RickAndMortyCharacterFetcher(BaseCharacterFetcher):
                     for raw_character in page_data.get('results'):
                         yield self.normalize_character(raw_character)
 
-    async def fetch_all_characters(self):
+    async def fetch_all_characters(self) -> list:
         return [character async for character in self.fetch_characters_stream()]
 
-    def normalize_character(self, raw_character):
+    def normalize_character(self, raw_character) -> dict:
         rick_and_morty_character = RickAndMortyCharacter.from_raw_character(raw_character)
         return rick_and_morty_character.to_dict()
 

@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
-import aiohttp
 import asyncio
+import aiohttp
 from loguru import logger
 
 from multiverse.universe_config import UniverseConfig

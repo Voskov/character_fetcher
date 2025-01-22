@@ -1,5 +1,5 @@
 import asyncio
-from typing import List
+from typing import List, Optional
 
 from icecream import ic
 from loguru import logger
@@ -17,7 +17,7 @@ class CharacterSynchronizer:
             StarWarsCharacterFetcher()
         ]
 
-    async def sync_characters_stream(self):
+    async def sync_characters_stream(self) -> List[dict]:
         logger.info("Starting character synchronization")
         fetch_tasks = [
             asyncio.create_task(self._process_universe(fetcher))
@@ -35,7 +35,7 @@ class CharacterSynchronizer:
         logger.info("Character synchronization completed")
 
     @staticmethod
-    async def _process_universe(fetcher):
+    async def _process_universe(fetcher) -> Optional[List[dict]]:
         logger.info(f"Fetching characters from {fetcher.config.name}")
         try:
             return await fetcher.fetch_all_characters()
@@ -44,7 +44,7 @@ class CharacterSynchronizer:
             return None
 
 
-    async def synchronize(self):
+    async def synchronize(self) -> List[dict]:
         logger.info("Synchronizing characters")
         all_characters = []
         async for character in self.sync_characters_stream():
@@ -54,7 +54,7 @@ class CharacterSynchronizer:
         return sorted(all_characters, key=lambda c: c['name'])
 
     @staticmethod
-    def save_characters(characters_list: List[dict], db_type: SaverType = SaverType.JSON):
+    def save_characters(characters_list: List[dict], db_type: SaverType = SaverType.JSON) -> None:
         logger.info(f"Saving characters to {db_type.name}")
         CharacterSaver(db_type).save_characters(characters_list)
         logger.info("Characters saved successfully")

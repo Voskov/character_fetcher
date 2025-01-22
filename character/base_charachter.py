@@ -10,10 +10,10 @@ class BaseCharacter(ABC):
         self.species = species
         self.additional_attribute = additional_attribute
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.name} is a {self.species} from {self.origin} with {self.additional_attribute} as an additional attribute"
 
-    def to_dict(self):
+    def to_dict(self) -> dict:
         return {
             'name': self.name,
             'origin': self.origin,
