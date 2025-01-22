@@ -55,9 +55,6 @@ class CharacterSynchronizer:
     def save_characters(characters_list: List[dict], db_type: SaverType = SaverType.JSON):
         logger.info(f"Saving characters to {db_type.name}")
         CharacterSaver(db_type).save_characters(characters_list)
-        CharacterSaver(SaverType.SHELVE).save_characters(characters_list)
-        CharacterSaver(SaverType.SQLITE).save_characters(characters_list)
-        CharacterSaver(SaverType.TINYDB).save_characters(characters_list)
         logger.info("Characters saved successfully")
 
 
