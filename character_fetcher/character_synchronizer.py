@@ -4,18 +4,21 @@ from typing import List, Optional
 from icecream import ic
 from loguru import logger
 from character_fetcher.base_character_fetcher import BaseCharacterFetcher
-from character_fetcher.character_saver import SaverType, CharacterSaver
 from character_fetcher.pokemon_character_fetcher import PokemonCharacterFetcher
 from character_fetcher.rick_and_morty_character_fetcher import RickAndMortyCharacterFetcher
 from character_fetcher.star_wars_character_fetcher import StarWarsCharacterFetcher
+from saver.saver_factory import get_saver, SaverType
+
 
 class CharacterSynchronizer:
-    def __init__(self, character_fetchers: List[BaseCharacterFetcher] = None):
+    def __init__(self, character_fetchers: List[BaseCharacterFetcher] = None,
+                 db_type: SaverType = SaverType.JSON):
         self.fetchers = character_fetchers or [
             PokemonCharacterFetcher(),
             RickAndMortyCharacterFetcher(),
             StarWarsCharacterFetcher()
         ]
+        self.db_type = db_type
 
     async def sync_characters_stream(self) -> List[dict]:
         logger.info("Starting character synchronization")
@@ -53,10 +56,10 @@ class CharacterSynchronizer:
         logger.info(f"Total characters fetched: {len(all_characters)}")
         return sorted(all_characters, key=lambda c: c['name'])
 
-    @staticmethod
-    def save_characters(characters_list: List[dict], db_type: SaverType = SaverType.JSON) -> None:
-        logger.info(f"Saving characters to {db_type.name}")
-        CharacterSaver(db_type).save_characters(characters_list)
+    def save_characters(self, characters_list: List[dict]) -> None:
+        logger.info(f"Saving characters to {self.db_type.name}")
+        saver = get_saver(self.db_type)
+        saver.save_characters(characters_list)
         logger.info("Characters saved successfully")
 
 
